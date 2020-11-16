@@ -1,0 +1,62 @@
+# Docker-compose configuration for production
+
+version: '2.1'
+
+services:
+  django:
+    build:
+      context: .
+      dockerfile: Dockerfile-django.production
+    container_name: bds_django
+    restart: unless-stopped
+    volumes:
+      - "/var/lib/docker-nginx/files/bds/assets:/files/assets"
+      - "/var/log/bds:/var/log/bds"
+    # For some reason the command also has to be specified here, otherwise the entrypoint+command combination won't
+    #  work.
+    entrypoint: /usr/bin/wait-for-it.sh postgres:5432 -t 60 --
+    command: gunicorn bds.wsgi:application --workers 2 --bind :80
+    networks:
+      - default
+      - bds_nginx
+      - bds_postgres
+    depends_on:
+      - redis
+    external_links:
+      - postgres-12:postgres
+
+  node:
+    build:
+      context: .
+      dockerfile: Dockerfile-node.production
+    container_name: bds_node
+    restart: unless-stopped
+    command: yarn start
+    volumes:
+      - "/var/lib/docker-nginx/files/bds/app/assets:/files/assets"
+      - "/var/log/bds:/var/log/bds"
+    networks:
+      - default
+      - bds_nginx
+
+  redis:
+    image: redis:4.0.10-alpine
+    restart: unless-stopped
+    sysctls:
+      # To allow maintaining TCP backlog setting that defaults to 511
+      net.core.somaxconn: 512
+    volumes:
+      - "/var/lib/docker-bds/redis:/data"
+    networks:
+      - default
+
+# NB: These networks must be created by fabfile and contain the global nginx/postgres containers.
+# Keep it in sync with fabfile!
+networks:
+  default:
+    external:
+      name: bds_default
+  bds_nginx:
+    external: true
+  bds_postgres:
+    external: true

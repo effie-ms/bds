@@ -1,0 +1,34 @@
+# Ignore everything in .idea
+.idea
+
+*.mo
+*.pyo
+*.pyc
+.sass-cache/
+yarn-error.log
+node_modules/
+venv/
+.cache/
+
+.data*/
+
+bds/django.env
+bds/settings/local.py
+bds/settings/local_test.py
+bds/db.sqlite3
+bds/assets/
+
+bds/.cache
+bds/.pytest_cache
+bds/.coverage
+bds/coverage
+bds/cover/
+
+# Node Project files
+app/build/
+app/coverage/
+
+# Missing translations file
+**/locales/**/*.missing.json
+
+bds/docs/_build
