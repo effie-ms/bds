@@ -47,8 +47,7 @@ export const loadSettings = () => {
     if (process.env.BUILD_TARGET === 'server') {
         cfg.CLUSTERED = false;
         cfg.FILE_LOGGING = process.env.RAZZLE_FILE_LOGGING === 'true';
-        cfg.LOGGING_DIR =
-            process.env.RAZZLE_LOGGING_DIR || '/var/log/bds/';
+        cfg.LOGGING_DIR = process.env.RAZZLE_LOGGING_DIR || '/var/log/bds/';
         cfg.LOGGING_FILE_PREFIX =
             process.env.RAZZLE_LOGGING_FILE_PREFIX || 'node';
         cfg.MAX_WORKERS = process.env.RAZZLE_MAX_WORKERS || 4;

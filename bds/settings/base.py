@@ -54,6 +54,9 @@ CSRF_COOKIE_HTTPONLY = False
 # Tg React Url configurations should be same as frontend forgot password URL
 TGR_PASSWORD_RECOVERY_URL = "/auth/reset-password/%s"
 
+# Maximum upload size: 100 Mb
+DATA_UPLOAD_MAX_MEMORY_SIZE = 100000000
+
 INSTALLED_APPS = [
     # Local apps
     "accounts",

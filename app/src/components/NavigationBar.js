@@ -10,6 +10,8 @@ import { resolvePath as urlResolve } from 'tg-named-routes';
 import SETTINGS from 'settings';
 import { UserShape } from 'utils/types';
 
+const showDefaultNavbar = false;
+
 const NavigationBar = ({ user, isLoggedIn }) => {
     const { t } = useTranslation();
 
@@ -58,19 +60,21 @@ const NavigationBar = ({ user, isLoggedIn }) => {
     }
 
     return (
-        <Navbar color="faded" light expand="md">
+        <Navbar color="dark" dark expand="md">
             <NavbarBrand tag={Link} to={urlResolve('landing')}>
-                HOME
+                Barotrauma Detection System (BDS): Sensor Data Processing Tool
             </NavbarBrand>
-            <Nav navbar>
-                <NavItem>
-                    <NavLink tag={Link} to={urlResolve('restricted')}>
-                        {t('Restricted view')}
-                    </NavLink>
-                </NavItem>
-                {devUrls}
-            </Nav>
-            {authNav}
+            {showDefaultNavbar && (
+                <Nav navbar>
+                    <NavItem>
+                        <NavLink tag={Link} to={urlResolve('restricted')}>
+                            {t('Restricted view')}
+                        </NavLink>
+                    </NavItem>
+                    {devUrls}
+                </Nav>
+            )}
+            {showDefaultNavbar && authNav}
         </Navbar>
     );
 };

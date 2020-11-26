@@ -1,5 +1,6 @@
 from django.conf.urls import include, url
 
+from bds.rest.views import read_sensor_data
 
 # Adding extra urls
 #
@@ -21,4 +22,5 @@ from django.conf.urls import include, url
 urlpatterns = [
     url(r"^auth/", include("accounts.jwt.urls")),
     url(r"^user/", include("accounts.rest.urls")),
+    url(r"^read-sensor-data/", read_sensor_data),
 ]
