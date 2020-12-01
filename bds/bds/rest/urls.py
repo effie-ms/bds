@@ -1,26 +1,8 @@
-from django.conf.urls import include, url
+from django.urls import include, path
 
-from bds.rest.views import read_sensor_data
 
-# Adding extra urls
-#
-# Create a router inside correct app (separation of concern)
-#
-# For example `some_app/rest/urls.py`:
-#     # This is example router, use which ever is appropriate
-#     from tg_react.routers import SuffixlessRouter
-#
-#     router = SuffixlessRouter(trailing_slash=False)
-#
-#     router.register(r'viewset/1', FirstViewSet)
-#     router.register(r'viewset/2', SecondViewSet)
-#
-#     urlpatterns = router.urls
-#
-# And finally add include here:
-#     url(r'^some_app/', include('some_app.rest.urls')),
 urlpatterns = [
-    url(r"^auth/", include("accounts.jwt.urls")),
-    url(r"^user/", include("accounts.rest.urls")),
-    url(r"^read-sensor-data/", read_sensor_data),
+    path("auth/", include("accounts.jwt.urls")),
+    path("user/", include("accounts.rest.urls")),
+    path("", include("sensors.rest.urls")),
 ]

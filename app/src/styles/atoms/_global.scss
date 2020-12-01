@@ -2,3 +2,40 @@ body {
     opacity: 1;
     background: $gray-100;
 }
+
+span.btn-remove-upload {
+    background-image: url(icons/icon-remove.svg);
+    margin-right: 0;
+    text-indent: -9999px;
+    position: relative;
+    right: 0;
+    margin-top: 7px;
+}
+
+.btn-remove-upload {
+    height: 18px;
+    width: 18px;
+    background-size: 18px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    background-position: center;
+}
+
+.btn-back {
+    background-image: url(icons/icon-arrow-left.svg);
+    background-size: 17px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    background-position: 10% 48%;
+    padding-left: 30px;
+    height: 36px;
+    width: 80px;
+}
+
+.btn-next {
+    background-image: url(icons/icon-arrow-right.svg);
+    background-size: 17px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    background-position: 98% 52%;
+}

@@ -1,7 +1,7 @@
 export const getSensorTitle = typeId => {
     switch (typeId) {
         case 'P': {
-            return 'Total pressure [mbar]';
+            return 'Total pressure [hPa]';
         }
         case 'RG': {
             return 'Rate gyroscope [rad/s]';
@@ -10,10 +10,10 @@ export const getSensorTitle = typeId => {
             return 'Magnetometer [microT]';
         }
         case 'LA': {
-            return 'Linear acceleration (m/s2)';
+            return 'Linear acceleration [m/s2]';
         }
         case 'EA': {
-            return 'Euler angle (deg)';
+            return 'Euler angle [deg]';
         }
         default: {
             return '';
@@ -124,7 +124,7 @@ const getSensorDataKeys = typeId => {
 
 export const getData = (sensorData, typeId) => {
     const sensorDataKeys = getSensorDataKeys(typeId);
-    return [
+    const traces = [
         {
             x: sensorData['Time [s]'],
             y: sensorData[sensorDataKeys[0].yKey],
@@ -143,11 +143,55 @@ export const getData = (sensorData, typeId) => {
         },
         {
             x: sensorData['Time [s]'],
-            y: sensorData['PR [hPa]'],
+            y: sensorData[sensorDataKeys[2].yKey],
             type: 'scatter',
             mode: 'lines',
             marker: { color: 'black' },
             name: sensorDataKeys[2].name,
         },
     ];
+
+    if (typeId !== 'P') {
+        traces.push({
+            x: sensorData['Time [s]'],
+            y: sensorData['P [hPa]'],
+            name: 'Avg pressure',
+            yaxis: 'y2',
+            type: 'scatter',
+            mode: 'lines',
+            marker: { color: 'violet' },
+        });
+    }
+
+    return traces;
+};
+
+export const getLayout = typeId => {
+    const layoutDict = {
+        showlegend: true,
+        xaxis: {
+            showticklabels: true,
+            title: 'Time [s]',
+        },
+        yaxis: {
+            showticklabels: true,
+            title: getSensorTitle(typeId),
+        },
+        legend: {
+            orientation: 'h',
+            xanchor: 'center',
+            y: 1.2,
+            x: 0.5,
+        },
+    };
+
+    if (typeId !== 'P') {
+        layoutDict.yaxis2 = {
+            title: getSensorTitle('P'),
+            overlaying: 'y',
+            side: 'right',
+        };
+    }
+
+    return layoutDict;
 };

@@ -7,12 +7,31 @@ import PageNotFound from 'views/PageNotFound';
 
 import permissionCheck from 'sagas/auth/permissionCheckSaga';
 import activateLanguage from 'sagas/user/activateLanguage';
-import fetchUserDetails from 'sagas/user/fetchUserDetails';
+// import fetchUserDetails from 'sagas/user/fetchUserDetails';
+
+import fetchSensorFileWatcher, {
+    fetchSensorFileInitialWorker,
+} from 'sagas/sensors/fetchSensorFile';
+import fetchSensorFilesWatcher, {
+    fetchSensorFilesInitialWorker,
+} from 'sagas/sensors/fetchSensorFiles';
+import createUploadWatcherSaga from 'sagas/uploads/createUploadSaga';
+import fetchUploadsWatcher, {
+    fetchUploadsInitialWorker,
+} from 'sagas/uploads/fetchUploads';
+import uploadRequestWatcherSaga, {
+    resetFileUploads,
+} from 'sagas/uploads/uploadFileSaga';
 
 import { createAuthenticationRoutes } from './routes/authentication';
 
 const Home = loadable(() => import('views/Home'));
 const RestrictedView = loadable(() => import('views/RestrictedView'));
+
+const SensorDataFileList = loadable(() =>
+    import('views/sensors/SensorDataFileList'),
+);
+const SensorDataFile = loadable(() => import('views/sensors/SensorDataFile'));
 
 const NotFoundRoute = {
     name: '404',
@@ -23,7 +42,7 @@ const NotFoundRoute = {
 const routes = [
     {
         component: App,
-        initial: [fetchUserDetails],
+        // initial: [fetchUserDetails],
         watcher: [activateLanguage],
         routes: [
             {
@@ -31,6 +50,12 @@ const routes = [
                 exact: true,
                 name: 'landing',
                 component: Home,
+                initial: [resetFileUploads, fetchUploadsInitialWorker],
+                watcher: [
+                    createUploadWatcherSaga,
+                    fetchUploadsWatcher,
+                    uploadRequestWatcherSaga,
+                ],
             },
             {
                 path: '/restricted',
@@ -38,6 +63,22 @@ const routes = [
                 name: 'restricted',
                 component: RestrictedView,
                 initial: permissionCheck,
+            },
+            {
+                path: '/uploads/:uploadId/files',
+                exact: true,
+                name: 'files:list',
+                component: SensorDataFileList,
+                initial: fetchSensorFilesInitialWorker,
+                watcher: fetchSensorFilesWatcher,
+            },
+            {
+                path: '/uploads/:uploadId/files/:fileId',
+                exact: true,
+                name: 'files:details',
+                component: SensorDataFile,
+                initial: fetchSensorFileInitialWorker,
+                watcher: fetchSensorFileWatcher,
             },
             createAuthenticationRoutes(NotFoundRoute),
             NotFoundRoute,

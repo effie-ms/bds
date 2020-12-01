@@ -50,6 +50,8 @@
     "@thorgate/spa-forms": "1.0.0-alpha.40",
     "@thorgate/spa-hooks": "1.0.0-alpha.39",
     "@thorgate/spa-is": "1.0.0-alpha.39",
+    "@thorgate/spa-pagination": "1.0.0-alpha.40",
+    "@thorgate/spa-pagination-reducer": "1.0.0-alpha.36",
     "@thorgate/spa-pending-data": "1.0.0-alpha.39",
     "@thorgate/spa-permissions": "1.0.0-alpha.39",
     "@thorgate/spa-view": "1.0.0-alpha.39",
@@ -78,6 +80,9 @@
     "koa-static": "4.0.3",
     "koa-useragent": "1.2.1",
     "lodash.template": "4.5.0",
+    "lodash.range": "3.2.0",
+    "lodash.omit": "4.5.0",
+    "lodash.pick": "4.4.0",
     "lorem-ipsum": "1.0.6",
     "node-sass": "4.13.1",
     "normalizr": "3.4.1",
@@ -110,6 +115,7 @@
     "throng": "4.0.0",
     "typesafe-actions": "4.4.2",
     "winston": "3.2.1",
+    "uuid": "3.3.0",
     "yup": "0.27.0"
   },
   "devDependencies": {

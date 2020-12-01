@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     # Local apps
     "accounts",
     "bds",
+    "sensors",
     # Third-party apps
     "rest_framework",
     "django_filters",
