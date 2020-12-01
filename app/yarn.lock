@@ -1657,12 +1657,44 @@
   resolved "https://registry.yarnpkg.com/@thorgate/spa-hooks/-/spa-hooks-1.0.0-alpha.39.tgz#d66a74c59d1000ffc376b5c848d5a69ead53887d"
   integrity sha512-zKWRvAfEgakRKvadfh4XIp2R6mBgP9WrZl1OyCXr2/heU6SYl12jPcuj4XQvdHg+S0/INp03wEnx3s9vWUNFGA==
 
+"@thorgate/spa-is@1.0.0-alpha.30":
+  version "1.0.0-alpha.30"
+  resolved "https://registry.yarnpkg.com/@thorgate/spa-is/-/spa-is-1.0.0-alpha.30.tgz#df29e3cc513feb8c526c29caf27732ac2771b412"
+  integrity sha512-GvMAPM0A/vxamc31bMOPtMCQZSD7eBSuPOei5jnnqOyhpcurcKNlpcGigCk5W7UJr34crsScOgMHcWvCZue17w==
+  dependencies:
+    is_js "^0.9.0"
+
 "@thorgate/spa-is@1.0.0-alpha.39":
   version "1.0.0-alpha.39"
   resolved "https://registry.yarnpkg.com/@thorgate/spa-is/-/spa-is-1.0.0-alpha.39.tgz#7afcda5392b3853bc7e72fe02bd6a3d7231d85ad"
   integrity sha512-fdjfHVcOEcARwD7Ktp7g8qflhqnbF0ElFcyRWhKFkI/Rc/hd3qxotX8Ok1QLHdYHK6WJ5pz3yWav2TbgdNNMYA==
   dependencies:
     is_js "^0.9.0"
+
+"@thorgate/spa-pagination-reducer@1.0.0-alpha.36":
+  version "1.0.0-alpha.36"
+  resolved "https://registry.yarnpkg.com/@thorgate/spa-pagination-reducer/-/spa-pagination-reducer-1.0.0-alpha.36.tgz#55c6c5acda321ccb6ac0f1f701856adf82932016"
+  integrity sha512-davAZX1+WDvYaQbCr53qKQz8WZnR47DTt5RAoWaBFJ8LXmafnAiKukRIvtJNLqTKNG9xJbjXJB6sLG0lGwMWuw==
+  dependencies:
+    "@thorgate/spa-is" "1.0.0-alpha.30"
+    typesafe-actions "^3.1.0"
+
+"@thorgate/spa-pagination-reducer@1.0.0-alpha.39":
+  version "1.0.0-alpha.39"
+  resolved "https://registry.yarnpkg.com/@thorgate/spa-pagination-reducer/-/spa-pagination-reducer-1.0.0-alpha.39.tgz#4a28121fa9c4fc51fa4f24001de4bcae3a6b8683"
+  integrity sha512-VtK6NVD39xQA4j1mJdL8uKIo/tXArZ4CpFbmTbDI7CwfzYdNagZPaMgZPx0MCpGwwGfMckapPqOqNETJq6mtoA==
+  dependencies:
+    "@thorgate/spa-is" "1.0.0-alpha.39"
+    typesafe-actions "^4.4.2"
+
+"@thorgate/spa-pagination@1.0.0-alpha.40":
+  version "1.0.0-alpha.40"
+  resolved "https://registry.yarnpkg.com/@thorgate/spa-pagination/-/spa-pagination-1.0.0-alpha.40.tgz#f9a14c7d5038cb27a2da7a20f3f887774de6e2e9"
+  integrity sha512-pBo7LJ0d5s146fylseFtgKlPw8QVQVll7uDRA3+DfeYoK2cMAghvf6LCvaFP13WlwEawdWyUKGSkz7iI4VN9+w==
+  dependencies:
+    "@thorgate/spa-entities" "1.0.0-alpha.40"
+    "@thorgate/spa-is" "1.0.0-alpha.39"
+    "@thorgate/spa-pagination-reducer" "1.0.0-alpha.39"
 
 "@thorgate/spa-pending-data@1.0.0-alpha.39":
   version "1.0.0-alpha.39"
@@ -9582,6 +9614,21 @@ lodash.memoize@^4.1.2:
   resolved "https://registry.yarnpkg.com/lodash.memoize/-/lodash.memoize-4.1.2.tgz#bcc6c49a42a2840ed997f323eada5ecd182e0bfe"
   integrity sha1-vMbEmkKihA7Zl/Mj6tpezRguC/4=
 
+lodash.omit@4.5.0:
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/lodash.omit/-/lodash.omit-4.5.0.tgz#6eb19ae5a1ee1dd9df0b969e66ce0b7fa30b5e60"
+  integrity sha1-brGa5aHuHdnfC5aeZs4Lf6MLXmA=
+
+lodash.pick@4.4.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/lodash.pick/-/lodash.pick-4.4.0.tgz#52f05610fff9ded422611441ed1fc123a03001b3"
+  integrity sha1-UvBWEP/53tQiYRRB7R/BI6AwAbM=
+
+lodash.range@3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/lodash.range/-/lodash.range-3.2.0.tgz#f461e588f66683f7eadeade513e38a69a565a15d"
+  integrity sha1-9GHliPZmg/fq3q3lE+OKaaVloV0=
+
 lodash.sortby@^4.7.0:
   version "4.7.0"
   resolved "https://registry.yarnpkg.com/lodash.sortby/-/lodash.sortby-4.7.0.tgz#edd14c824e2cc9c1e0b0a1b42bb5210516a42438"
@@ -15246,6 +15293,11 @@ typesafe-actions@4.4.2, typesafe-actions@^4.4.2:
   resolved "https://registry.yarnpkg.com/typesafe-actions/-/typesafe-actions-4.4.2.tgz#8f817c479d12130b5ebb442032968b2a18929e1a"
   integrity sha512-QW61P4cOX8dCNmrfpcUMjvU/MF/sFTC8/PlG9215W1gKDzZUBjRGdyYSO6ZcEUNsn491S2VpryJOHSIVSDqJrg==
 
+typesafe-actions@^3.1.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/typesafe-actions/-/typesafe-actions-3.4.0.tgz#cdf925941eafc75a659ebc2d584b673b86a1a5ab"
+  integrity sha512-FW6f61NEe8B8vDftLs3vFMLzyROvqlDS6jhbc2j/fPlCZ6MsY3V4bE4i83uPGfy7Kvvq70ePtsb4nPes9ROXqw==
+
 typescript-compare@^0.0.2:
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/typescript-compare/-/typescript-compare-0.0.2.tgz#7ee40a400a406c2ea0a7e551efd3309021d5f425"
@@ -15574,6 +15626,11 @@ utils-regex-from-string@^1.0.0:
   dependencies:
     regex-regex "^1.0.0"
     validate.io-string-primitive "^1.0.0"
+
+uuid@3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.3.0.tgz#b237147804881d7b86f40a7ff8f590f15c37de32"
+  integrity sha512-ijO9N2xY/YaOqQ5yz5c4sy2ZjWmA6AR6zASb/gdpeKZ8+948CxwfMW9RrKVk5may6ev8c0/Xguu32e2Llelpqw==
 
 uuid@^3.0.1, uuid@^3.3.2, uuid@^3.4.0:
   version "3.4.0"

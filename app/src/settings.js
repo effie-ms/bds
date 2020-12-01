@@ -27,6 +27,8 @@ export const loadSettings = () => {
         DJANGO_STATIC_URL: '/assets/',
         DJANGO_ADMIN_PANEL: '/adminpanel/',
 
+        LONG_SAGA_TIMEOUT: 60000,
+
         SITE_URL: process.env.RAZZLE_SITE_URL,
         BACKEND_SITE_URL: process.env.RAZZLE_BACKEND_SITE_URL || '',
         SENTRY_ENVIRONMENT: process.env.RAZZLE_SENTRY_ENVIRONMENT,
