@@ -3,14 +3,14 @@ import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { Container } from 'reactstrap';
 import { connect } from 'react-redux';
-import withView from 'decorators/withView';
 
-import { UploadShape, RouterLocationShape } from 'utils/types';
+import withView from 'decorators/withView';
 import { selectUploads } from 'schemas/uploads';
 import { fetchUploads } from 'sagas/uploads/fetchUploads';
 import { createUpload } from 'sagas/uploads/createUploadSaga';
+import { UploadShape, RouterLocationShape } from 'utils/types';
 import SensorDataUploadForm from 'forms/SensorDataUploadForm';
-import { UploadList } from 'components/UploadList';
+import { UploadList } from 'components/sensors/UploadList';
 
 const Home = ({ uploads, onFetchUploads, onSave, location }) => (
     <>

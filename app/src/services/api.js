@@ -72,6 +72,10 @@ const api = createSagaRouter(
             list: 'files',
             detail: 'files/${pk}',
         },
+        annotations: {
+            list: 'annotations',
+            detail: 'annotations/${pk}',
+        },
     },
     {
         apiRoot: SETTINGS.BACKEND_SITE_URL + SETTINGS.API_BASE,

@@ -2,9 +2,7 @@ import { createFetchAction, createFetchSaga } from '@thorgate/spa-entities';
 import { takeLatestWithMatch } from '@thorgate/spa-view-manager';
 import { resolvePattern } from 'tg-named-routes';
 import SETTINGS from 'settings';
-
 import api from 'services/api';
-
 import { sensorFileSchema } from 'schemas/files';
 
 export const fetchSensorFiles = createFetchAction(

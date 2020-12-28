@@ -14,7 +14,7 @@ gunicorn = "==20.*"
 # If you change the docker base image to be non-alpine
 # This can be changed to psycopg2-binary to get advantage from
 # using wheels
-"psycopg2" = "==2.8.*"
+"psycopg2-binary" = "*"
 pyyaml = "==5.*"
 "sentry-sdk" = "==0.16.*"
 redis = "==3.*"
@@ -27,6 +27,11 @@ django-filter = "==2.1.*"
 djangorestframework_simplejwt = "==4.3.*"
 django-cors-headers = "==3.0.*"
 tg-react = "*"
+
+numpy = "*"
+scipy = "*"
+pandas = "*"
+django-request-cache = "*"
 
 
 [dev-packages]
