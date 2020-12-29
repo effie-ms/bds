@@ -57,10 +57,12 @@ const SensorDataFile = ({
 
     const [selectedStart, setSelectedStart] = useState(null);
     const [selectedEnd, setSelectedEnd] = useState(null);
-    const [updatedName, setUpdatedName] = useState('-');
+    const [updatedName, setUpdatedName] = useState('');
 
     const [openedEditAnnotation, setOpenedEditAnnotation] = useState(null);
     const [openNewAnnotation, setOpenNewAnnotation] = useState(false);
+
+    const [isStartedCreate, setIsStartedCreate] = useState(false);
 
     const graph1Data = sensorData
         ? getData(sensorData, 'P', quantization)
@@ -83,13 +85,15 @@ const SensorDataFile = ({
             const lastX = points[points.length - 1].x;
             setSelectedStart(firstX);
             setSelectedEnd(lastX);
+            setIsStartedCreate(true);
         }
     };
 
     const resetSelection = () => {
         setSelectedStart(null);
         setSelectedEnd(null);
-        setUpdatedName('-');
+        setUpdatedName('');
+        setIsStartedCreate(false);
     };
 
     return (
@@ -129,6 +133,7 @@ const SensorDataFile = ({
                             setOpenedEditAnnotation={setOpenedEditAnnotation}
                             updatedName={updatedName}
                             setUpdatedName={setUpdatedName}
+                            isStartedCreate={isStartedCreate}
                         />
                     </Col>
                     <Col xl={9} className="order-2">
@@ -277,7 +282,9 @@ SensorDataFile.defaultProps = {
 
 const mapStateToProps = (state, ownProps) => ({
     sensorFile: selectSensorFile(state, ownProps.match.params.fileId),
-    annotations: selectAnnotations(state),
+    annotations: selectAnnotations(state).sort(
+        (a, b) => new Date(b.updated_at) - new Date(a.updated_at),
+    ),
 });
 
 const mapDispatchToProps = dispatch => ({

@@ -32,6 +32,7 @@ export const Configuration = ({
     setOpenedEditAnnotation,
     updatedName,
     setUpdatedName,
+    isStartedCreate,
 }) => {
     const onToggleAnnotationUpdate = (
         isNew,
@@ -121,6 +122,7 @@ export const Configuration = ({
                                 resetSelection();
                             }}
                             updateAnnotations={updateAnnotations}
+                            isStartedCreate={isStartedCreate}
                         />
                     </Card>
                 </Collapse>
@@ -202,6 +204,7 @@ export const Configuration = ({
                                             updateAnnotations={
                                                 updateAnnotations
                                             }
+                                            isStartedCreate
                                         />
                                     </div>
                                 </Collapse>
@@ -237,6 +240,7 @@ Configuration.propTypes = {
     setSelectedEnd: PropTypes.func.isRequired,
     updatedName: PropTypes.string.isRequired,
     setUpdatedName: PropTypes.func.isRequired,
+    isStartedCreate: PropTypes.bool.isRequired,
 };
 
 Configuration.defaultProps = {

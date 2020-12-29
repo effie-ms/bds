@@ -2,8 +2,6 @@ import json
 from collections import OrderedDict
 
 from django.shortcuts import get_object_or_404
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
 
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -18,12 +16,16 @@ from sensors.rest.serializers import (
 )
 
 
+# from django.utils.decorators import method_decorator
+# from django.views.decorators.cache import cache_page
+
+
 class SensorFileViewSet(viewsets.ModelViewSet):
     queryset = SensorFile.objects.all().order_by("name")
     serializer_class = SensorFileSerializer
     filterset_fields = ["upload"]
 
-    @method_decorator(cache_page(60*60*2))
+    # @method_decorator(cache_page(60*60*2))
     def retrieve(self, request, pk=None):
         queryset = SensorFile.objects.all()
         sensor_file = get_object_or_404(queryset, pk=pk)

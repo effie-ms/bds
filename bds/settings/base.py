@@ -87,10 +87,10 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django_userforeignkey.middleware.UserForeignKeyMiddleware",
-    "django_request_cache.middleware.RequestCacheMiddleware",
-    "django.middleware.cache.UpdateCacheMiddleware",
-    "django.middleware.cache.FetchFromCacheMiddleware",
+    # "django_userforeignkey.middleware.UserForeignKeyMiddleware",
+    # "django_request_cache.middleware.RequestCacheMiddleware",
+    # "django.middleware.cache.UpdateCacheMiddleware",
+    # "django.middleware.cache.FetchFromCacheMiddleware",
 ]
 
 
