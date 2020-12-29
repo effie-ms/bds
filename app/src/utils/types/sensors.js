@@ -14,6 +14,7 @@ export const SensorFileShape = PropTypes.shape({
     min_time: PropTypes.number,
     max_time: PropTypes.number,
     max_pressure: PropTypes.number,
+    points_number: PropTypes.number,
 });
 
 export const AnnotationShape = PropTypes.shape({

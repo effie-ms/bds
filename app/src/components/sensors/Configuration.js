@@ -11,6 +11,8 @@ import {
 import { AnnotationShape } from 'utils/types';
 import { AnnotationWindowForm } from 'forms/AnnotationWindowForm';
 
+const maxPointsNumberGraph = 500;
+
 export const Configuration = ({
     quantization,
     setQuantization,
@@ -33,6 +35,7 @@ export const Configuration = ({
     updatedName,
     setUpdatedName,
     isStartedCreate,
+    pointsNumber,
 }) => {
     const onToggleAnnotationUpdate = (
         isNew,
@@ -73,15 +76,21 @@ export const Configuration = ({
         }
     };
 
+    const minSlider =
+        Math.round(pointsNumber / maxPointsNumberGraph) > 0
+            ? Math.floor(Math.round(pointsNumber / maxPointsNumberGraph) / 10) *
+              10
+            : 1;
+
     return (
         <>
             <div className="w-100 mb-5">
                 <H4>Sampling</H4>
                 <Slider
-                    min={100}
-                    max={1000}
-                    stepSize={10}
-                    labelStepSize={100}
+                    min={minSlider}
+                    max={minSlider * 10}
+                    stepSize={minSlider / 10 < 1 ? 1 : 10}
+                    labelStepSize={minSlider}
                     onChange={val => setQuantization(val)}
                     value={quantization}
                 />
@@ -241,6 +250,7 @@ Configuration.propTypes = {
     updatedName: PropTypes.string.isRequired,
     setUpdatedName: PropTypes.func.isRequired,
     isStartedCreate: PropTypes.bool.isRequired,
+    pointsNumber: PropTypes.number,
 };
 
 Configuration.defaultProps = {
@@ -250,4 +260,5 @@ Configuration.defaultProps = {
     openedEditAnnotation: null,
     minValue: 0,
     maxValue: 0,
+    pointsNumber: 0,
 };

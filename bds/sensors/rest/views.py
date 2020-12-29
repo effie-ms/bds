@@ -36,6 +36,7 @@ class SensorFileViewSet(viewsets.ModelViewSet):
             "min_time": min(sensor_file_data["Time [s]"]),
             "max_time": max(sensor_file_data["Time [s]"]),
             "max_pressure": max(sensor_file_data["P [hPa]"]),
+            "points_number": len(sensor_file_data["Time [s]"]),
         }
         data.update(serializer.data)
         return Response(data)

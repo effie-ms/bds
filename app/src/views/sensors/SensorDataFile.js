@@ -77,6 +77,7 @@ const SensorDataFile = ({
     const minValue = sensorFile ? sensorFile.min_time : 0;
     const maxValue = sensorFile ? sensorFile.max_time : 0;
     const yLabelCoordinate = sensorFile ? sensorFile.max_pressure : 0;
+    const pointsNumber = sensorFile ? sensorFile.points_number : 0;
 
     const onAreaSelect = data => {
         const points = data?.points;
@@ -134,6 +135,7 @@ const SensorDataFile = ({
                             updatedName={updatedName}
                             setUpdatedName={setUpdatedName}
                             isStartedCreate={isStartedCreate}
+                            pointsNumber={pointsNumber}
                         />
                     </Col>
                     <Col xl={9} className="order-2">
