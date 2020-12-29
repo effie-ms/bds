@@ -76,11 +76,10 @@ export const Configuration = ({
         }
     };
 
-    const minSlider =
-        Math.round(pointsNumber / maxPointsNumberGraph) > 0
-            ? Math.floor(Math.round(pointsNumber / maxPointsNumberGraph) / 10) *
-              10
-            : 1;
+    let minSlider = Math.floor(Math.round(pointsNumber / maxPointsNumberGraph) / 10) * 10;
+    if (minSlider < 1) {
+        minSlider = 1
+    }
 
     return (
         <>
