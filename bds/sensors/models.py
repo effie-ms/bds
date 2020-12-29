@@ -1,4 +1,4 @@
-from django.core.validators import FileExtensionValidator
+from django.core.validators import FileExtensionValidator, MinValueValidator
 from django.db import models
 
 from sensors.helpers import random_files_path
@@ -27,3 +27,20 @@ class SensorFile(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Annotation(models.Model):
+    sensor_file = models.ForeignKey(SensorFile, on_delete=models.CASCADE)
+    title = models.CharField(max_length=20)
+    start = models.FloatField(
+        verbose_name="Window start (time)", validators=[MinValueValidator(0)], default=0
+    )
+    end = models.FloatField(
+        verbose_name="Window end (time)", validators=[MinValueValidator(0)], default=0
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.title} [{round(self.start, 3)}; {round(self.end, 3)}]"

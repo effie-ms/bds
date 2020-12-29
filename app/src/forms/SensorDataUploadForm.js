@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import uuid from 'uuid';
 import { getIn, withFormik, Form } from 'formik';
-import { Button, FormText } from 'reactstrap';
 import { connect } from 'react-redux';
+import { useDropzone } from 'react-dropzone';
 import omit from 'lodash.omit';
 import classNames from 'classnames';
-import { useDropzone } from 'react-dropzone';
+import { FormText } from 'reactstrap';
+import { Button, Intent } from '@blueprintjs/core';
 import { getFormPropTypes } from 'utils/types';
 
 import {
@@ -159,7 +160,9 @@ const SensorDataUpload = ({
             <Button
                 type="submit"
                 disabled={toDisableForm}
-                className="btn-black mt-4"
+                className="mt-4"
+                large
+                intent={Intent.SUCCESS}
             >
                 Submit
             </Button>

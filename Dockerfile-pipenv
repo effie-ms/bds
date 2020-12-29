@@ -3,18 +3,15 @@
 # will result in all .build-deps apks being deleted from it and pipenv failing to lock/install
 # The build steps of this file are taken from the Django Dockerfile to make the build a bit faster though.
 
-FROM python:3.8-alpine3.11
+FROM python:3.8-slim
+
+ENV PIPENV_PYUP_API_KEY=""
 
 VOLUME /src
 WORKDIR /src
 
 # Install bash, libpq and gettext
-RUN apk add --no-cache bash gettext libpq
-
-# Install build dependencies and mark them as virtual packages so they could be removed together
-RUN apk add --no-cache --virtual .build-deps \
-    ca-certificates alpine-sdk postgresql-dev python3-dev linux-headers musl-dev \
-    libffi-dev libxml2-dev libxslt-dev jpeg-dev zlib-dev
+RUN apt-get -y update && apt-get -y install bash gettext libpq-dev python-dev
 
 # Copy Python requirements dir and Install requirements
-RUN pip install -U 'pipenv>=2020.6.2' pip setuptools wheel
+RUN pip install -U pipenv>=2020.6.2 pip setuptools wheel

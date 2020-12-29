@@ -5,6 +5,10 @@ from functools import wraps
 
 from django.utils.decorators import available_attrs
 
+import numpy as np
+import pandas as pd
+from scipy import signal
+
 
 def random_path(instance, filename):
     """ Random path generator for uploads, specify this for upload_to= argument of FileFields
@@ -29,6 +33,70 @@ def path_prefix(prefix):
 @path_prefix("files")
 def random_files_path(instance, filename):
     return random_path(instance, filename)
+
+
+def test_sensor_triplet(data_dict, sensor_keys, n=6, alpha=2.5):
+    fL = 2 ** n
+
+    w = signal.gaussian(fL, std=(fL - 1) / (2 * alpha))
+    w = w / sum(w)
+    wd = w[1:] - w[: len(w) - 1]
+
+    if len(sensor_keys) < 3:
+        return []
+
+    X = data_dict[sensor_keys[0]]
+    Y = data_dict[sensor_keys[1]]
+    Z = data_dict[sensor_keys[2]]
+
+    X = np.convolve(X, w, "same")
+    Y = np.convolve(Y, w, "same")
+    Z = np.convolve(Z, w, "same")
+
+    Xfd = abs(np.convolve(X, wd, "same"))
+    Yfd = abs(np.convolve(Y, wd, "same"))
+    Zfd = abs(np.convolve(Z, wd, "same"))
+
+    Xstd = pd.Series(Xfd).rolling(window=fL).std()
+    Ystd = pd.Series(Yfd).rolling(window=fL).std()
+    Zstd = pd.Series(Zfd).rolling(window=fL).std()
+
+    delF = [np.sqrt(Xfd[i] ** 2 + Yfd[i] ** 2 + Zfd[i] ** 2) for i in range(len(Xfd))]
+    delFsig = [
+        (Xfd[i] * Xstd[i] + Yfd[i] * Ystd[i] + Zfd[i] * Zstd[i])
+        / (np.sqrt(Xfd[i] ** 2 + Yfd[i] ** 2 + Zfd[i] ** 2))
+        for i in range(len(Xfd))
+    ]
+
+    outliers = [1 if delF[i] < 3 * delFsig[i] else 0 for i in range(len(delF))]
+
+    return outliers
+
+
+def get_outliers(output_dict):
+    n = 6
+    outliers_p = test_sensor_triplet(
+        output_dict, ["PL [hPa]", "PC [hPa]", "PR [hPa]"], n
+    )
+    outliers_a = test_sensor_triplet(
+        output_dict, ["AX [m/s2]", "AY [m/s2]", "AZ [m/s2]"], n
+    )
+    outliers_m = test_sensor_triplet(
+        output_dict, ["MX [microT]", "MY [microT]", "MZ [microT]"], n
+    )
+    outliers_r = test_sensor_triplet(
+        output_dict, ["RX [rad/s]", "RY [rad/s]", "RZ [rad/s]"], n
+    )
+    outliers_e = test_sensor_triplet(
+        output_dict, ["EX [deg]", "EY [deg]", "EZ [deg]"], n
+    )
+
+    severity_arr = np.add(
+        np.add(np.add(np.add(outliers_p, outliers_a), outliers_m), outliers_r),
+        outliers_e,
+    )
+
+    return [int(s) for s in severity_arr]
 
 
 def get_sensor_data(filename):
@@ -102,29 +170,12 @@ def get_sensor_data(filename):
     del output_dict["CSR"]
     del output_dict["CSTOT"]
 
-    short_output_dict = dict()
-    for k, val in output_dict.items():
-        if k != "Time [ms]":
-            key = k
-        else:
-            key = "Time [s]"
-        short_output_dict[key] = []
-
-        i = 0
-        step = 1000
-        while i * step <= len(val):
-            if i == 0:
-                idx = 0
-            else:
-                idx = i * step - 1
-
-            short_output_dict[key].append(val[idx])
-            i += 1
+    short_output_dict = output_dict
 
     # ms to s
-    t0 = short_output_dict["Time [s]"][0]
+    t0 = short_output_dict["Time [ms]"][0]
     short_output_dict["Time [s]"] = [
-        (v - t0) / 1000 for v in short_output_dict["Time [s]"]
+        (v - t0) / 1000 for v in short_output_dict["Time [ms]"]
     ]
 
     n = len(short_output_dict["PL [hPa]"])
@@ -137,5 +188,7 @@ def get_sensor_data(filename):
         / 3
         for idx in range(n)
     ]
+
+    short_output_dict["severity"] = get_outliers(output_dict)
 
     return short_output_dict

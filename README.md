@@ -1,6 +1,4 @@
-# bds
-
-TODO: verify that the following info is correct:
+# Barotrauma Detection System (BDS)
 
  - Python:  3.8
  - DB:      PostgreSQL 12

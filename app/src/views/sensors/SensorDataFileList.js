@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { Container } from 'reactstrap';
 import { connect } from 'react-redux';
-import withView from 'decorators/withView';
 import { Link } from 'react-router-dom';
 import { resolvePath as urlResolve } from 'tg-named-routes';
 
+import withView from 'decorators/withView';
 import { SensorFileShape } from 'utils/types';
 import { selectSensorFiles } from 'schemas/files';
 
@@ -24,7 +24,8 @@ const SensorDataFileList = ({ sensorFiles }) => {
                 <div className="d-flex flex-row">
                     <Link
                         to={urlResolve('landing')}
-                        className="btn btn-secondary btn-back mr-5"
+                        className="btn bp3-button bp3-icon-arrow-left mr-5 mb-3"
+                        style={{ height: 38, width: 90 }}
                     >
                         Back
                     </Link>
@@ -58,7 +59,11 @@ const SensorDataFileList = ({ sensorFiles }) => {
 };
 
 SensorDataFileList.propTypes = {
-    sensorFiles: PropTypes.arrayOf(SensorFileShape).isRequired,
+    sensorFiles: PropTypes.arrayOf(SensorFileShape),
+};
+
+SensorDataFileList.defaultProps = {
+    sensorFiles: [],
 };
 
 const mapStateToProps = state => ({

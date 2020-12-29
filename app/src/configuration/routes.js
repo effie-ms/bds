@@ -23,6 +23,13 @@ import uploadRequestWatcherSaga, {
     resetFileUploads,
 } from 'sagas/uploads/uploadFileSaga';
 
+import addAnnotationWatcherSaga from 'sagas/annotations/addAnnotation';
+import patchAnnotationWatcherSaga from 'sagas/annotations/patchAnnotation';
+import deleteAnnotationWatcherSaga from 'sagas/annotations/deleteAnnotation';
+import fetchAnnotationsWatcher, {
+    fetchAnnotationsInitialWorker,
+} from 'sagas/annotations/fetchAnnotations';
+
 import { createAuthenticationRoutes } from './routes/authentication';
 
 const Home = loadable(() => import('views/Home'));
@@ -77,8 +84,17 @@ const routes = [
                 exact: true,
                 name: 'files:details',
                 component: SensorDataFile,
-                initial: fetchSensorFileInitialWorker,
-                watcher: fetchSensorFileWatcher,
+                initial: [
+                    fetchSensorFileInitialWorker,
+                    fetchAnnotationsInitialWorker,
+                ],
+                watcher: [
+                    fetchSensorFileWatcher,
+                    addAnnotationWatcherSaga,
+                    patchAnnotationWatcherSaga,
+                    deleteAnnotationWatcherSaga,
+                    fetchAnnotationsWatcher,
+                ],
             },
             createAuthenticationRoutes(NotFoundRoute),
             NotFoundRoute,
