@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { Container } from 'reactstrap';
+import { Icon, Tooltip, Position, Intent } from '@blueprintjs/core';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { resolvePath as urlResolve } from 'tg-named-routes';
@@ -43,6 +44,19 @@ const SensorDataFileList = ({ sensorFiles }) => {
                                         className="list-group-item-action list-group-item btn-next"
                                     >
                                         {f.name}
+                                        {f.annotations_count > 0 && (
+                                            <Tooltip
+                                                content="Annotated"
+                                                position={Position.RIGHT}
+                                            >
+                                                <Icon
+                                                    icon="annotation"
+                                                    iconSize={16}
+                                                    intent={Intent.SUCCESS}
+                                                    className="ml-3"
+                                                />
+                                            </Tooltip>
+                                        )}
                                     </Link>
                                 ))}
                             </div>

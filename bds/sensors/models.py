@@ -21,6 +21,16 @@ class SensorFile(models.Model):
         upload_to=random_files_path,
         validators=[FileExtensionValidator(allowed_extensions=["txt"])],
     )
+    truncation_start = models.FloatField(
+        verbose_name="Truncation start (time [s])",
+        validators=[MinValueValidator(0)],
+        null=True,
+    )
+    truncation_end = models.FloatField(
+        verbose_name="Truncation end (time [s])",
+        validators=[MinValueValidator(0)],
+        null=True,
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

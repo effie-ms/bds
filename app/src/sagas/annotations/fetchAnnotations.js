@@ -1,6 +1,7 @@
 import { createFetchAction, createFetchSaga } from '@thorgate/spa-entities';
 import { takeLatestWithMatch } from '@thorgate/spa-view-manager';
 import { resolvePattern } from 'tg-named-routes';
+import SETTINGS from 'settings';
 import api from 'services/api';
 import { annotationSchema } from 'schemas/annotations';
 
@@ -15,6 +16,7 @@ const fetchAnnotationsWorker = createFetchSaga({
     mutateQuery(match, _action) {
         return { sensor_file: match.params.fileId };
     },
+    timeoutMs: SETTINGS.LONG_SAGA_TIMEOUT,
 });
 
 export const fetchAnnotationsInitialWorker = fetchAnnotationsWorker.asInitialWorker(

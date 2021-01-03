@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Container, Row, Col } from 'reactstrap';
 import { Helmet } from 'react-helmet';
@@ -6,16 +6,29 @@ import loadable from '@loadable/component';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { resolvePath as urlResolve } from 'tg-named-routes';
-import { Switch } from '@blueprintjs/core';
+import { Switch, Spinner, Intent } from '@blueprintjs/core';
 
 import withView from 'decorators/withView';
-import { selectSensorFile } from 'schemas/files';
+import {
+    selectSensorFile,
+    selectSensorFileData,
+    selectSensorFilePressureData,
+} from 'schemas/files';
 import { selectAnnotations } from 'schemas/annotations';
-import { SensorFileShape, AnnotationShape } from 'utils/types';
-import { getData, getLayout } from 'utils/sensorData';
+import {
+    SensorFileShape,
+    AnnotationShape,
+    SensorFileDataShape,
+} from 'utils/types';
+import { setSensorDataObject } from 'utils/sensorData';
+import { getDataPlots, getLayoutPlots } from 'utils/plots/plots';
+import { getData, getConfig } from 'utils/plots/shared';
 import { deleteAnnotation } from 'sagas/annotations/deleteAnnotation';
 import { patchAnnotation } from 'sagas/annotations/patchAnnotation';
 import { addAnnotation } from 'sagas/annotations/addAnnotation';
+import { patchSensorFile } from 'sagas/sensors/patchSensorFile';
+import { fetchSensorFileData } from 'sagas/sensors/fetchSensorFileData';
+import { fetchSensorFilePressureData } from 'sagas/sensors/fetchSensorFilePressureData';
 import { SensorTypesDropdown } from 'components/sensors/SensorTypesDropdown';
 import { Configuration } from 'components/sensors/Configuration';
 
@@ -24,78 +37,78 @@ const Plot =
         ? loadable(() => import('react-plotly.js'))
         : null;
 
-const config = {
-    responsive: true,
-    staticPlot: false,
-    displayModeBar: true,
-    displaylogo: false,
-};
-
-const setSensorDataObject = data => {
-    try {
-        return JSON.parse(data);
-    } catch (e) {
-        return null;
-    }
-};
-
 const SensorDataFile = ({
     sensorFile,
+    sensorFileData,
+    sensorFilePressureData,
     annotations,
     onAddAnnotation,
     onEditAnnotation,
     onRemoveAnnotation,
+    onSaveTruncation,
+    onFetchTruncatedSensorData,
+    onFetchPressureData,
 }) => {
-    const sensorData = sensorFile ? setSensorDataObject(sensorFile.data) : null;
     const [graph2, setGraph2] = useState('EA');
     const [graph3, setGraph3] = useState('LA');
-    const [quantization, setQuantization] = useState(200);
 
     const [showAnnotations1, setShowAnnotations1] = useState(true);
     const [showAnnotations2, setShowAnnotations2] = useState(true);
     const [showAnnotations3, setShowAnnotations3] = useState(true);
 
-    const [selectedStart, setSelectedStart] = useState(null);
-    const [selectedEnd, setSelectedEnd] = useState(null);
-    const [updatedName, setUpdatedName] = useState('');
+    const [showSpinner, setShowSpinner] = useState(true);
 
-    const [openedEditAnnotation, setOpenedEditAnnotation] = useState(null);
-    const [openNewAnnotation, setOpenNewAnnotation] = useState(false);
+    const truncationStart = sensorFile ? sensorFile.truncation_start : null;
+    const truncationEnd = sensorFile ? sensorFile.truncation_end : null;
 
-    const [isStartedCreate, setIsStartedCreate] = useState(false);
-
-    const graph1Data = sensorData
-        ? getData(sensorData, 'P', quantization)
-        : null;
-    const graph2Data = sensorData
-        ? getData(sensorData, graph2, quantization)
-        : null;
-    const graph3Data = sensorData
-        ? getData(sensorData, graph3, quantization)
+    const allPressureData = sensorFilePressureData
+        ? getData(setSensorDataObject(sensorFilePressureData.data), 'P')
         : null;
 
-    const minValue = sensorFile ? sensorFile.min_time : 0;
-    const maxValue = sensorFile ? sensorFile.max_time : 0;
-    const yLabelCoordinate = sensorFile ? sensorFile.max_pressure : 0;
-    const pointsNumber = sensorFile ? sensorFile.points_number : 0;
+    const truncatedSensorData = sensorFileData
+        ? setSensorDataObject(sensorFileData.data)
+        : null;
+    const graph1Data = truncatedSensorData
+        ? getDataPlots(truncatedSensorData, 'P', annotations, true)
+        : null;
+    const graph1DataWithoutMarkers = truncatedSensorData
+        ? getDataPlots(truncatedSensorData, 'P', annotations, false)
+        : null;
 
-    const onAreaSelect = data => {
-        const points = data?.points;
-        if (points && points.length > 0) {
-            const firstX = points[0].x;
-            const lastX = points[points.length - 1].x;
-            setSelectedStart(firstX);
-            setSelectedEnd(lastX);
-            setIsStartedCreate(true);
+    const graph2Data = truncatedSensorData
+        ? getDataPlots(truncatedSensorData, graph2, annotations, false)
+        : null;
+    const graph3Data = truncatedSensorData
+        ? getDataPlots(truncatedSensorData, graph3, annotations, false)
+        : null;
+
+    const minValueTruncated = sensorFileData ? sensorFileData.min_time : null;
+    const maxValueTruncated = sensorFileData ? sensorFileData.max_time : null;
+    const minValueAll = sensorFilePressureData
+        ? sensorFilePressureData.min_time
+        : null;
+    const maxValueAll = sensorFilePressureData
+        ? sensorFilePressureData.max_time
+        : null;
+    const yLabelCoordinateTruncated = sensorFileData
+        ? sensorFileData.max_pressure
+        : 0;
+
+    useEffect(() => {
+        if (sensorFile?.id) {
+            onFetchPressureData();
+            // onFetchTruncatedSensorData();
         }
-    };
+    }, [sensorFile?.id]);
 
-    const resetSelection = () => {
-        setSelectedStart(null);
-        setSelectedEnd(null);
-        setUpdatedName('');
-        setIsStartedCreate(false);
-    };
+    useEffect(() => {
+        setShowSpinner(true);
+        onFetchTruncatedSensorData();
+    }, [sensorFile.updated_at]);
+
+    useEffect(() => {
+        setShowSpinner(sensorFileData === null);
+    }, [sensorFileData?.updated_at]);
 
     return (
         <>
@@ -114,36 +127,37 @@ const SensorDataFile = ({
                             Back
                         </Link>
                         <Configuration
-                            quantization={quantization}
-                            setQuantization={setQuantization}
                             annotations={annotations}
-                            minValue={minValue}
-                            maxValue={maxValue}
+                            minValueTruncated={minValueTruncated}
+                            maxValueTruncated={maxValueTruncated}
+                            minValueAll={minValueAll}
+                            maxValueAll={maxValueAll}
                             onAddAnnotation={onAddAnnotation}
                             onEditAnnotation={onEditAnnotation}
                             onRemoveAnnotation={onRemoveAnnotation}
                             sensorFileId={sensorFile.id}
-                            selectedStart={selectedStart}
-                            selectedEnd={selectedEnd}
-                            setSelectedStart={setSelectedStart}
-                            setSelectedEnd={setSelectedEnd}
-                            resetSelection={resetSelection}
-                            openNewAnnotation={openNewAnnotation}
-                            setOpenNewAnnotation={setOpenNewAnnotation}
-                            openedEditAnnotation={openedEditAnnotation}
-                            setOpenedEditAnnotation={setOpenedEditAnnotation}
-                            updatedName={updatedName}
-                            setUpdatedName={setUpdatedName}
-                            isStartedCreate={isStartedCreate}
-                            pointsNumber={pointsNumber}
+                            pressureData={graph1DataWithoutMarkers}
+                            yLabelCoordinate={yLabelCoordinateTruncated}
+                            allPressureData={allPressureData}
+                            truncationStart={truncationStart}
+                            truncationEnd={truncationEnd}
+                            onSaveTruncation={onSaveTruncation}
                         />
                     </Col>
                     <Col xl={9} className="order-2">
                         <div className="d-flex flex-column w-100">
                             <p className="font-weight-bold my-2 text-center">
-                                {sensorFile ? sensorFile.name : 'Loading...'}
+                                {sensorFileData
+                                    ? sensorFileData.name
+                                    : 'Loading...'}
                             </p>
-                            {sensorData && Plot && (
+                            {(!sensorFileData || showSpinner) && (
+                                <Spinner
+                                    intent={Intent.PRIMARY}
+                                    size={Spinner.SIZE_STANDARD}
+                                />
+                            )}
+                            {truncatedSensorData && Plot && !showSpinner && (
                                 <>
                                     <Switch
                                         checked={showAnnotations1}
@@ -159,25 +173,16 @@ const SensorDataFile = ({
                                         data={graph1Data}
                                         className="w-100 my-2"
                                         divId="graph1-P"
-                                        layout={getLayout(
+                                        layout={getLayoutPlots(
                                             'P',
                                             annotations,
-                                            yLabelCoordinate,
+                                            yLabelCoordinateTruncated,
                                             showAnnotations1,
-                                            selectedStart,
-                                            selectedEnd,
-                                            openedEditAnnotation,
-                                            updatedName,
                                         )}
                                         showlegend
-                                        config={config}
+                                        config={getConfig(false)}
                                         useResizeHandler
                                         style={{ height: 400 }}
-                                        onSelected={data =>
-                                            (openedEditAnnotation !== null ||
-                                                openNewAnnotation) &&
-                                            onAreaSelect(data)
-                                        }
                                     />
                                     <div className="d-flex flex-row justify-content-between mt-5">
                                         <Switch
@@ -199,25 +204,16 @@ const SensorDataFile = ({
                                         data={graph2Data}
                                         className="w-100 my-2"
                                         divId={`graph2-${graph2}`}
-                                        layout={getLayout(
+                                        layout={getLayoutPlots(
                                             graph2,
                                             annotations,
-                                            yLabelCoordinate,
+                                            yLabelCoordinateTruncated,
                                             showAnnotations2,
-                                            selectedStart,
-                                            selectedEnd,
-                                            openedEditAnnotation,
-                                            updatedName,
                                         )}
                                         showlegend
-                                        config={config}
+                                        config={getConfig(false)}
                                         useResizeHandler
                                         style={{ height: 400 }}
-                                        onSelected={data =>
-                                            (openedEditAnnotation !== null ||
-                                                openNewAnnotation) &&
-                                            onAreaSelect(data)
-                                        }
                                     />
                                     <div className="d-flex flex-row justify-content-between mt-5">
                                         <Switch
@@ -239,25 +235,16 @@ const SensorDataFile = ({
                                         data={graph3Data}
                                         className="w-100 my-2"
                                         divId={`graph3-${graph3}`}
-                                        layout={getLayout(
+                                        layout={getLayoutPlots(
                                             graph3,
                                             annotations,
-                                            yLabelCoordinate,
+                                            yLabelCoordinateTruncated,
                                             showAnnotations3,
-                                            selectedStart,
-                                            selectedEnd,
-                                            openedEditAnnotation,
-                                            updatedName,
                                         )}
                                         showlegend
-                                        config={config}
+                                        config={getConfig(false)}
                                         useResizeHandler
                                         style={{ height: 400 }}
-                                        onSelected={data =>
-                                            (openedEditAnnotation !== null ||
-                                                openNewAnnotation) &&
-                                            onAreaSelect(data)
-                                        }
                                     />
                                 </>
                             )}
@@ -271,21 +258,33 @@ const SensorDataFile = ({
 
 SensorDataFile.propTypes = {
     sensorFile: SensorFileShape,
+    sensorFileData: SensorFileDataShape,
+    sensorFilePressureData: SensorFileDataShape,
     annotations: PropTypes.arrayOf(AnnotationShape),
     onAddAnnotation: PropTypes.func.isRequired,
     onEditAnnotation: PropTypes.func.isRequired,
     onRemoveAnnotation: PropTypes.func.isRequired,
+    onSaveTruncation: PropTypes.func.isRequired,
+    onFetchTruncatedSensorData: PropTypes.func.isRequired,
+    onFetchPressureData: PropTypes.func.isRequired,
 };
 
 SensorDataFile.defaultProps = {
     sensorFile: null,
+    sensorFileData: null,
+    sensorFilePressureData: null,
     annotations: [],
 };
 
 const mapStateToProps = (state, ownProps) => ({
     sensorFile: selectSensorFile(state, ownProps.match.params.fileId),
-    annotations: selectAnnotations(state).sort(
-        (a, b) => new Date(b.updated_at) - new Date(a.updated_at),
+    sensorFileData: selectSensorFileData(state, ownProps.match.params.fileId),
+    sensorFilePressureData: selectSensorFilePressureData(
+        state,
+        ownProps.match.params.fileId,
+    ),
+    annotations: selectAnnotations(state).sort((a, b) =>
+        a.title.localeCompare(b.title),
     ),
 });
 
@@ -293,6 +292,9 @@ const mapDispatchToProps = dispatch => ({
     onAddAnnotation: data => dispatch(addAnnotation(data)),
     onEditAnnotation: (pk, data) => dispatch(patchAnnotation(pk, data)),
     onRemoveAnnotation: pk => dispatch(deleteAnnotation(pk)),
+    onSaveTruncation: (pk, data) => dispatch(patchSensorFile(pk, data)),
+    onFetchTruncatedSensorData: () => dispatch(fetchSensorFileData()),
+    onFetchPressureData: () => dispatch(fetchSensorFilePressureData()),
 });
 
 const SensorDataFileConnector = connect(

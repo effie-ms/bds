@@ -1,9 +1,8 @@
 import json
 from collections import OrderedDict
 
-from django.shortcuts import get_object_or_404
-
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from bds.pagination import SpaPagination
@@ -26,19 +25,59 @@ class SensorFileViewSet(viewsets.ModelViewSet):
     filterset_fields = ["upload"]
 
     # @method_decorator(cache_page(60*60*2))
-    def retrieve(self, request, pk=None):
-        queryset = SensorFile.objects.all()
-        sensor_file = get_object_or_404(queryset, pk=pk)
-        serializer = SensorFileSerializer(sensor_file)
-        sensor_file_data = get_sensor_data(sensor_file.file.path)
-        data = {
-            "data": json.dumps(sensor_file_data),
-            "min_time": min(sensor_file_data["Time [s]"]),
-            "max_time": max(sensor_file_data["Time [s]"]),
-            "max_pressure": max(sensor_file_data["P [hPa]"]),
-            "points_number": len(sensor_file_data["Time [s]"]),
-        }
-        data.update(serializer.data)
+    @action(detail=False, methods=["get"])
+    def data(self, request, **kwargs):
+        query_params = request.query_params.dict()
+        data = {}
+
+        if "sensor_file" in query_params.keys():
+            sensor_file = SensorFile.objects.get(pk=query_params["sensor_file"])
+            if sensor_file:
+                serializer = SensorFileSerializer(sensor_file)
+                sensor_file_data = get_sensor_data(
+                    sensor_file.file.path,
+                    truncate_start=sensor_file.truncation_start,
+                    truncate_end=sensor_file.truncation_end,
+                    only_pressure=False,
+                )
+
+                data = {
+                    "data": json.dumps(sensor_file_data),
+                    "min_time": min(sensor_file_data["Time [s]"]),
+                    "max_time": max(sensor_file_data["Time [s]"]),
+                    "max_pressure": max(sensor_file_data["P [hPa]"]),
+                    "points_number": len(sensor_file_data["Time [s]"]),
+                }
+                data.update(serializer.data)
+
+        return Response(data)
+
+    # @method_decorator(cache_page(60*60*2))
+    @action(detail=False, methods=["get"])
+    def all_pressure_data(self, request, **kwargs):
+        query_params = request.query_params.dict()
+        data = {}
+
+        if "sensor_file" in query_params.keys():
+            sensor_file = SensorFile.objects.get(pk=query_params["sensor_file"])
+            if sensor_file:
+                serializer = SensorFileSerializer(sensor_file)
+
+                sensor_file_data = get_sensor_data(
+                    sensor_file.file.path,
+                    truncate_start=None,
+                    truncate_end=None,
+                    only_pressure=True,
+                )
+
+            data = {
+                "data": json.dumps(sensor_file_data),
+                "min_time": min(sensor_file_data["Time [s]"]),
+                "max_time": max(sensor_file_data["Time [s]"]),
+                "points_number": len(sensor_file_data["Time [s]"]),
+            }
+            data.update(serializer.data)
+
         return Response(data)
 
 

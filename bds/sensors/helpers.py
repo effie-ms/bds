@@ -2,6 +2,7 @@ import os
 import struct
 import uuid
 from functools import wraps
+from operator import itemgetter
 
 from django.utils.decorators import available_attrs
 
@@ -99,7 +100,9 @@ def get_outliers(output_dict):
     return [int(s) for s in severity_arr]
 
 
-def get_sensor_data(filename):
+def get_sensor_data(
+    filename, truncate_start=None, truncate_end=None, only_pressure=False
+):
     def read_chunks(f, length):
         count = 0
         while True:
@@ -170,25 +173,51 @@ def get_sensor_data(filename):
     del output_dict["CSR"]
     del output_dict["CSTOT"]
 
-    short_output_dict = output_dict
-
     # ms to s
-    t0 = short_output_dict["Time [ms]"][0]
-    short_output_dict["Time [s]"] = [
-        (v - t0) / 1000 for v in short_output_dict["Time [ms]"]
-    ]
+    t0 = output_dict["Time [ms]"][0]
+    output_dict["Time [s]"] = [(v - t0) / 1000 for v in output_dict["Time [ms]"]]
 
-    n = len(short_output_dict["PL [hPa]"])
-    short_output_dict["P [hPa]"] = [
-        (
-            short_output_dict["PL [hPa]"][idx]
-            + short_output_dict["PC [hPa]"][idx]
-            + short_output_dict["PR [hPa]"][idx]
-        )
-        / 3
-        for idx in range(n)
-    ]
+    del output_dict["Time [ms]"]
 
-    short_output_dict["severity"] = get_outliers(output_dict)
+    if only_pressure:
+        del output_dict["EX [deg]"]
+        del output_dict["EY [deg]"]
+        del output_dict["EZ [deg]"]
 
-    return short_output_dict
+        del output_dict["RX [rad/s]"]
+        del output_dict["RY [rad/s]"]
+        del output_dict["RZ [rad/s]"]
+
+        del output_dict["MX [microT]"]
+        del output_dict["MY [microT]"]
+        del output_dict["MZ [microT]"]
+
+        del output_dict["AX [m/s2]"]
+        del output_dict["AY [m/s2]"]
+        del output_dict["AZ [m/s2]"]
+
+    if truncate_start and truncate_end:
+        truncated_idxs = [
+            idx
+            for idx, t in enumerate(output_dict["Time [s]"])
+            if truncate_start <= t <= truncate_end
+        ]
+
+        for key in output_dict.keys():
+            output_dict[key] = itemgetter(*truncated_idxs)(output_dict[key])
+
+    if not only_pressure:
+        n = len(output_dict["PL [hPa]"])
+        output_dict["P [hPa]"] = [
+            (
+                output_dict["PL [hPa]"][idx]
+                + output_dict["PC [hPa]"][idx]
+                + output_dict["PR [hPa]"][idx]
+            )
+            / 3
+            for idx in range(n)
+        ]
+
+        output_dict["severity"] = get_outliers(output_dict)
+
+    return output_dict
