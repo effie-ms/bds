@@ -62,8 +62,8 @@ export const AnnotationUpdateWindow = ({
 
     useEffect(() => {
         if (isOpen) {
-            let startVal = null;
-            let endVal = null;
+            let startVal;
+            let endVal;
             if (selectionStart === null) {
                 if (updatedAnnotation !== null) {
                     setSelectionStart(updatedAnnotation?.start);
@@ -72,6 +72,8 @@ export const AnnotationUpdateWindow = ({
                     setSelectionStart(minValue);
                     startVal = minValue;
                 }
+            } else {
+                startVal = selectionStart;
             }
             if (selectionEnd === null) {
                 if (updatedAnnotation !== null) {
@@ -81,6 +83,8 @@ export const AnnotationUpdateWindow = ({
                     setSelectionEnd(maxValue);
                     endVal = maxValue;
                 }
+            } else {
+                endVal = selectionEnd;
             }
             if (startVal !== null && endVal !== null) {
                 setLayout(
@@ -163,7 +167,7 @@ export const AnnotationUpdateWindow = ({
     useEffect(() => {
         let tempLayout;
         if (
-            layout === null &&
+            (layout === null || layout?.shapes?.length === 0) &&
             selectionStart !== null &&
             selectionEnd !== null
         ) {
@@ -197,7 +201,7 @@ export const AnnotationUpdateWindow = ({
     useEffect(() => {
         let tempLayout;
         if (
-            layout === null &&
+            (layout === null || layout?.shapes?.length === 0) &&
             selectionStart !== null &&
             selectionEnd !== null
         ) {

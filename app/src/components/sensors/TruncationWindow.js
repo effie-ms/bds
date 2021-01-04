@@ -106,7 +106,7 @@ export const TruncationWindow = ({
     useEffect(() => {
         let tempLayout;
         if (
-            layout === null &&
+            (layout === null || layout?.shapes?.length === 0) &&
             selectionStart !== null &&
             selectionEnd !== null
         ) {
@@ -132,7 +132,7 @@ export const TruncationWindow = ({
     useEffect(() => {
         let tempLayout;
         if (
-            layout === null &&
+            (layout === null || layout?.shapes?.length === 0) &&
             selectionStart !== null &&
             selectionEnd !== null
         ) {
