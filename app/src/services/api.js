@@ -71,6 +71,8 @@ const api = createSagaRouter(
         files: {
             list: 'files',
             detail: 'files/${pk}',
+            data: 'files/data',
+            pressureData: 'files/all_pressure_data',
         },
         annotations: {
             list: 'annotations',

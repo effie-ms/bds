@@ -4,6 +4,7 @@ import { takeLatestWithMatch } from '@thorgate/spa-view-manager';
 import { resolvePattern } from 'tg-named-routes';
 import api from 'services/api';
 import { createPaginationSuccessHook } from '@thorgate/spa-pagination';
+import SETTINGS from 'settings';
 
 import { serializeData } from 'utils/serializeData';
 import { uploadSchema } from 'schemas/uploads';
@@ -23,6 +24,7 @@ const fetchUploadsWorker = createFetchSaga({
     successHook,
     serializeData,
     listSchema: [uploadSchema],
+    timeoutMs: SETTINGS.LONG_SAGA_TIMEOUT,
 });
 
 export const fetchUploadsInitialWorker = fetchUploadsWorker.asInitialWorker(

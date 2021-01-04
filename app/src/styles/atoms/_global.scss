@@ -39,3 +39,9 @@ span.btn-remove-upload {
     cursor: pointer;
     background-position: 98% 52%;
 }
+
+#pressure-annotating {
+    rect {
+        pointer-events: none !important;
+    }
+}

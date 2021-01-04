@@ -15,6 +15,8 @@ import fetchSensorFileWatcher, {
 import fetchSensorFilesWatcher, {
     fetchSensorFilesInitialWorker,
 } from 'sagas/sensors/fetchSensorFiles';
+import patchSensorFileWatcherSaga from 'sagas/sensors/patchSensorFile';
+
 import createUploadWatcherSaga from 'sagas/uploads/createUploadSaga';
 import fetchUploadsWatcher, {
     fetchUploadsInitialWorker,
@@ -22,6 +24,8 @@ import fetchUploadsWatcher, {
 import uploadRequestWatcherSaga, {
     resetFileUploads,
 } from 'sagas/uploads/uploadFileSaga';
+import fetchSensorFileDataWatcher from 'sagas/sensors/fetchSensorFileData';
+import fetchSensorFilePressureDataWatcher from 'sagas/sensors/fetchSensorFilePressureData';
 
 import addAnnotationWatcherSaga from 'sagas/annotations/addAnnotation';
 import patchAnnotationWatcherSaga from 'sagas/annotations/patchAnnotation';
@@ -87,13 +91,17 @@ const routes = [
                 initial: [
                     fetchSensorFileInitialWorker,
                     fetchAnnotationsInitialWorker,
+                    // fetchSensorFileDataInitialWorker,
                 ],
                 watcher: [
                     fetchSensorFileWatcher,
+                    fetchSensorFileDataWatcher,
+                    fetchSensorFilePressureDataWatcher,
                     addAnnotationWatcherSaga,
                     patchAnnotationWatcherSaga,
                     deleteAnnotationWatcherSaga,
                     fetchAnnotationsWatcher,
+                    patchSensorFileWatcherSaga,
                 ],
             },
             createAuthenticationRoutes(NotFoundRoute),

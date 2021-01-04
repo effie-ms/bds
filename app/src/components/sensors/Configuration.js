@@ -1,139 +1,105 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import {
-    Slider,
-    H4,
-    Button,
-    Card,
-    Elevation,
-    Collapse,
-} from '@blueprintjs/core';
+import { H4, Button, Tooltip, Position, Intent } from '@blueprintjs/core';
 import { AnnotationShape } from 'utils/types';
-import { AnnotationWindowForm } from 'forms/AnnotationWindowForm';
-
-const maxPointsNumberGraph = 500;
+import { TruncationWindow } from 'components/sensors/TruncationWindow';
+import { AnnotationUpdateWindow } from 'components/sensors/AnnotationUpdateWindow';
 
 export const Configuration = ({
-    quantization,
-    setQuantization,
     annotations,
-    minValue,
-    maxValue,
     onAddAnnotation,
     onEditAnnotation,
     onRemoveAnnotation,
+    minValueTruncated,
+    maxValueTruncated,
+    minValueAll,
+    maxValueAll,
     sensorFileId,
-    selectedStart,
-    selectedEnd,
-    setSelectedStart,
-    setSelectedEnd,
-    resetSelection,
-    openNewAnnotation,
-    setOpenNewAnnotation,
-    openedEditAnnotation,
-    setOpenedEditAnnotation,
-    updatedName,
-    setUpdatedName,
-    isStartedCreate,
-    pointsNumber,
+    pressureData,
+    yLabelCoordinate,
+    allPressureData,
+    truncationStart,
+    truncationEnd,
+    onSaveTruncation,
 }) => {
-    const onToggleAnnotationUpdate = (
-        isNew,
-        stateUpdate,
-        isClosing,
-        annotationId,
-    ) => {
-        if (isNew) {
-            setOpenedEditAnnotation(null);
-        } else {
-            setOpenNewAnnotation(false);
-        }
-        stateUpdate();
-        if (isClosing) {
-            resetSelection();
-        } else if (!isNew && annotationId) {
-            const annotation = annotations.find(a => a.id === annotationId);
-            if (annotation) {
-                setUpdatedName(annotation.title);
-                setSelectedStart(annotation.start);
-                setSelectedEnd(annotation.end);
-            }
-        }
-    };
+    const [isOpenAnnotationUpdate, setIsOpenAnnotationUpdate] = useState(false);
+    const [isOpenTruncation, setIsOpenTruncation] = useState(false);
 
-    const updateAnnotations = target => {
-        const name = target?.name;
-        const value = target?.value;
+    const [updatedAnnotation, setUpdatedAnnotation] = useState(null);
 
-        if (name === 'start') {
-            const numValue = parseFloat(value);
-            setSelectedStart(numValue);
-        } else if (name === 'end') {
-            const numValue = parseFloat(value);
-            setSelectedEnd(numValue);
-        } else if (name === 'title') {
-            setUpdatedName(value);
+    useEffect(() => {
+        if (truncationStart === null || truncationEnd === null) {
+            setIsOpenTruncation(true);
         }
-    };
+    });
 
-    let minSlider = Math.floor(Math.round(pointsNumber / maxPointsNumberGraph) / 10) * 10;
-    if (minSlider < 1) {
-        minSlider = 1
-    }
+    useEffect(() => {
+        if (truncationStart !== null && truncationEnd !== null) {
+            setIsOpenTruncation(false);
+        }
+    }, [truncationStart, truncationEnd]);
 
     return (
         <>
-            <div className="w-100 mb-5">
-                <H4>Sampling</H4>
-                <Slider
-                    min={minSlider}
-                    max={minSlider * 10}
-                    stepSize={minSlider / 10 < 1 ? 1 : 10}
-                    labelStepSize={minSlider}
-                    onChange={val => setQuantization(val)}
-                    value={quantization}
-                />
-            </div>
-            <div className="my-5">
-                <div className="d-flex flex-row justify-content-between mb-3">
-                    <H4 className="mb-0" style={{ lineHeight: '40px' }}>
-                        Annotations
-                    </H4>
+            <TruncationWindow
+                isOpen={isOpenTruncation}
+                onClose={() => setIsOpenTruncation(false)}
+                allPressureData={allPressureData}
+                minValue={minValueAll}
+                maxValue={maxValueAll}
+                sensorFileId={sensorFileId}
+                truncationStart={truncationStart}
+                truncationEnd={truncationEnd}
+                onSaveTruncation={onSaveTruncation}
+            />
+            <AnnotationUpdateWindow
+                isOpen={isOpenAnnotationUpdate}
+                onClose={() => {
+                    setIsOpenAnnotationUpdate(false);
+                    setUpdatedAnnotation(null);
+                }}
+                annotations={annotations}
+                updatedAnnotation={updatedAnnotation}
+                onCreateAnnotation={onAddAnnotation}
+                onEditAnnotation={onEditAnnotation}
+                minValue={minValueTruncated}
+                maxValue={maxValueTruncated}
+                sensorFileId={sensorFileId}
+                pressureData={pressureData}
+                yLabelCoordinate={yLabelCoordinate}
+            />
+            <div className="bp3-callout bp3-intent-primary bp3-icon-info-sign">
+                <p className="bp3-heading">
+                    Crop data to get a higher resolution and improve
+                    performance.
+                </p>
+                <div className="d-flex justify-content-end w-100">
                     <Button
-                        icon={openNewAnnotation ? 'undo' : 'add'}
-                        minimal
-                        large
-                        onClick={() =>
-                            onToggleAnnotationUpdate(
-                                true,
-                                () => setOpenNewAnnotation(!openNewAnnotation),
-                                openNewAnnotation,
-                                null,
-                            )
-                        }
+                        onClick={() => setIsOpenTruncation(true)}
+                        text="Crop data"
+                        intent={Intent.PRIMARY}
                     />
                 </div>
-                <Collapse isOpen={openNewAnnotation}>
-                    <Card elevation={Elevation.ZERO} className="my-3">
-                        <AnnotationWindowForm
-                            formHeading="Create a new window annotation"
-                            initialTitle={updatedName}
-                            initialStart={selectedStart || minValue}
-                            initialEnd={selectedEnd || maxValue}
-                            minValue={minValue}
-                            maxValue={maxValue}
-                            onSave={onAddAnnotation}
-                            annotationId={null}
-                            sensorFileId={sensorFileId}
-                            onSuccessAction={() => {
-                                setOpenNewAnnotation(false);
-                                resetSelection();
-                            }}
-                            updateAnnotations={updateAnnotations}
-                            isStartedCreate={isStartedCreate}
+            </div>
+            <div className="my-3">
+                <div className="d-flex flex-row justify-content-start mb-3">
+                    <H4 className="mb-0 mr-2" style={{ lineHeight: '40px' }}>
+                        Annotations
+                    </H4>
+                    <Tooltip
+                        content="Create"
+                        position={Position.TOP_RIGHT}
+                        disabled={annotations && annotations?.length >= 5}
+                    >
+                        <Button
+                            icon="add"
+                            minimal
+                            large
+                            onClick={() => setIsOpenAnnotationUpdate(true)}
+                            disabled={annotations && annotations?.length >= 5}
                         />
-                    </Card>
-                </Collapse>
+                    </Tooltip>
+                </div>
                 {annotations && annotations.length > 0 ? (
                     <div className="list-group">
                         {annotations.map(annotation => (
@@ -145,7 +111,10 @@ export const Configuration = ({
                                     <div className="align-self-center">
                                         <p
                                             className="mb-0"
-                                            style={{ fontSize: 14 }}
+                                            style={{
+                                                fontSize: 14,
+                                                fontWeight: 600,
+                                            }}
                                         >
                                             {annotation.title}
                                         </p>
@@ -154,68 +123,39 @@ export const Configuration = ({
                                         </p>
                                     </div>
                                     <div className="d-flex flex-row">
-                                        <Button
-                                            icon={
-                                                annotation.id ===
-                                                openedEditAnnotation
-                                                    ? 'undo'
-                                                    : 'edit'
-                                            }
-                                            minimal
-                                            onClick={() =>
-                                                onToggleAnnotationUpdate(
-                                                    false,
-                                                    () =>
-                                                        setOpenedEditAnnotation(
-                                                            annotation.id ===
-                                                                openedEditAnnotation
-                                                                ? null
-                                                                : annotation.id,
-                                                        ),
-                                                    annotation.id ===
-                                                        openedEditAnnotation,
-                                                    annotation.id,
-                                                )
-                                            }
-                                        />
-                                        <Button
-                                            icon="cross"
-                                            minimal
-                                            onClick={() =>
-                                                onRemoveAnnotation(
-                                                    annotation.id,
-                                                )
-                                            }
-                                        />
+                                        <Tooltip
+                                            content="Edit"
+                                            position={Position.TOP_RIGHT}
+                                        >
+                                            <Button
+                                                icon="edit"
+                                                minimal
+                                                onClick={() => {
+                                                    setIsOpenAnnotationUpdate(
+                                                        true,
+                                                    );
+                                                    setUpdatedAnnotation(
+                                                        annotation,
+                                                    );
+                                                }}
+                                            />
+                                        </Tooltip>
+                                        <Tooltip
+                                            content="Remove"
+                                            position={Position.TOP_RIGHT}
+                                        >
+                                            <Button
+                                                icon="cross"
+                                                minimal
+                                                onClick={() =>
+                                                    onRemoveAnnotation(
+                                                        annotation.id,
+                                                    )
+                                                }
+                                            />
+                                        </Tooltip>
                                     </div>
                                 </div>
-                                <Collapse
-                                    isOpen={
-                                        openedEditAnnotation === annotation.id
-                                    }
-                                >
-                                    <div className="m-3">
-                                        <AnnotationWindowForm
-                                            formHeading="Edit a window annotation"
-                                            initialTitle={updatedName}
-                                            initialStart={selectedStart}
-                                            initialEnd={selectedEnd}
-                                            minValue={minValue}
-                                            maxValue={maxValue}
-                                            onSave={onEditAnnotation}
-                                            annotationId={annotation.id}
-                                            sensorFileId={sensorFileId}
-                                            onSuccessAction={() => {
-                                                setOpenedEditAnnotation(null);
-                                                resetSelection();
-                                            }}
-                                            updateAnnotations={
-                                                updateAnnotations
-                                            }
-                                            isStartedCreate
-                                        />
-                                    </div>
-                                </Collapse>
                             </div>
                         ))}
                     </div>
@@ -228,36 +168,32 @@ export const Configuration = ({
 };
 
 Configuration.propTypes = {
-    quantization: PropTypes.number.isRequired,
-    setQuantization: PropTypes.func.isRequired,
     annotations: PropTypes.arrayOf(AnnotationShape),
-    minValue: PropTypes.number,
-    maxValue: PropTypes.number,
     onAddAnnotation: PropTypes.func.isRequired,
     onEditAnnotation: PropTypes.func.isRequired,
     onRemoveAnnotation: PropTypes.func.isRequired,
+    minValueTruncated: PropTypes.number,
+    maxValueTruncated: PropTypes.number,
+    minValueAll: PropTypes.number,
+    maxValueAll: PropTypes.number,
     sensorFileId: PropTypes.number.isRequired,
-    selectedStart: PropTypes.number,
-    selectedEnd: PropTypes.number,
-    resetSelection: PropTypes.func.isRequired,
-    openNewAnnotation: PropTypes.bool.isRequired,
-    setOpenNewAnnotation: PropTypes.func.isRequired,
-    openedEditAnnotation: PropTypes.number,
-    setOpenedEditAnnotation: PropTypes.func.isRequired,
-    setSelectedStart: PropTypes.func.isRequired,
-    setSelectedEnd: PropTypes.func.isRequired,
-    updatedName: PropTypes.string.isRequired,
-    setUpdatedName: PropTypes.func.isRequired,
-    isStartedCreate: PropTypes.bool.isRequired,
-    pointsNumber: PropTypes.number,
+    pressureData: PropTypes.arrayOf(PropTypes.object),
+    yLabelCoordinate: PropTypes.number,
+    allPressureData: PropTypes.arrayOf(PropTypes.object),
+    truncationStart: PropTypes.number,
+    truncationEnd: PropTypes.number,
+    onSaveTruncation: PropTypes.func.isRequired,
 };
 
 Configuration.defaultProps = {
     annotations: [],
-    selectedStart: null,
-    selectedEnd: null,
-    openedEditAnnotation: null,
-    minValue: 0,
-    maxValue: 0,
-    pointsNumber: 0,
+    pressureData: [],
+    minValueTruncated: null,
+    maxValueTruncated: null,
+    minValueAll: null,
+    maxValueAll: null,
+    yLabelCoordinate: 0,
+    allPressureData: [],
+    truncationStart: null,
+    truncationEnd: null,
 };
